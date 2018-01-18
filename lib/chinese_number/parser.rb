@@ -7,7 +7,7 @@ module ChineseNumber
     attr_reader :parts
     
     def self.generate_base_map
-      chinese_numbers = "一两二三四五六七八九〇零".chars
+      chinese_numbers = "一兩二三四五六七八九〇零".chars
       digits          = "122345678900".chars.map(&:to_i)
       Hash.new.tap do |map|
         chinese_numbers.each_with_index do |w, i|
@@ -34,7 +34,7 @@ module ChineseNumber
         #   ChineseNumber::Parser::MULTIPERS['兆'] = 10000_0000_0000 
         '兆' => 100_0000,
 
-        '亿' => 10000_0000
+        '億' => 10000_0000
       }
     end
 
@@ -45,6 +45,8 @@ module ChineseNumber
     TOKEN          = Regexp.new( "[#{(DIGIT_MAP.keys + MULTIPERS.keys).join}]+" )
 
     def parse word
+
+      
       
       raise InvalidWord unless word =~ /\A#{TOKEN}\Z/
 
@@ -90,9 +92,14 @@ module ChineseNumber
         end
 
         if parts.last.factor <= multiper
-          parts.each do |part|
+          parts.each_with_index do |part, index|
             if part.factor <= multiper
-              part.factor *= multiper
+              # part.factor *= multiper
+              if part.factor == 1
+                part.factor *= multiper*( 10**(parts.size-index-1) )
+              else
+                part.factor *= multiper
+              end
             end
           end
         else
